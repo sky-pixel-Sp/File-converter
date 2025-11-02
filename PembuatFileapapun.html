@@ -1,0 +1,3258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal File Converter Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --error: #e63946;
+            --dark: #1d3557;
+            --light: #f1faee;
+            --text-primary: #1d3557;
+            --text-secondary: #457b9d;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --border-color: #dee2e6;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+
+        [data-theme="dark"] {
+            --primary: #4895ef;
+            --secondary: #560bad;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --error: #e63946;
+            --dark: #f1faee;
+            --light: #1d3557;
+            --text-primary: #f1faee;
+            --text-secondary: #a8dadc;
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --border-color: #404040;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            background-color: var(--bg-primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 1400px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        .security-system {
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .language-selector {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-tutorial {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-tutorial:hover {
+            background: #3a56d4;
+            transform: translateY(-2px);
+        }
+
+        .user-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-auth {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-login:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-logout {
+            background: var(--error);
+            color: white;
+            border: 2px solid var(--error);
+        }
+
+        .btn-logout:hover {
+            background: #c1121f;
+        }
+
+        .btn-fullscreen {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-fullscreen:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .online .status-dot {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .offline .status-dot {
+            background: #ef4444;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .connection-speed {
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 5px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            border-radius: 8px;
+            position: relative;
+            flex: 1;
+            text-align: center;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            background: var(--bg-primary);
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius);
+            padding: 50px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            background: var(--bg-secondary);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: var(--bg-tertiary);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.highlight {
+            border-color: var(--primary);
+            background-color: var(--bg-tertiary);
+            animation: pulse-border 1.5s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: var(--primary); }
+            50% { border-color: #a5b4fc; }
+            100% { border-color: var(--primary); }
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .upload-area p {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            resize: vertical;
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .export-option {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+        }
+
+        .export-option:hover {
+            border-color: var(--primary);
+            background-color: var(--bg-secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-option.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .export-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .export-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .export-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Liquid Button Effect for All Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 16px 25px;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.6s;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: -1;
+        }
+
+        .btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled::before,
+        .btn:disabled::after {
+            display: none;
+        }
+
+        /* Apply liquid effect to other buttons */
+        .btn-tutorial, .btn-auth, .camera-btn, .ai-provider, .ai-format, .export-option {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-tutorial::before, .btn-auth::before, .camera-btn::before, 
+        .ai-provider::before, .ai-format::before, .export-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.6s;
+            z-index: -1;
+        }
+
+        .btn-tutorial:hover::before, .btn-auth:hover::before, .camera-btn:hover::before,
+        .ai-provider:hover::before, .ai-format:hover::before, .export-option:hover::before {
+            left: 100%;
+        }
+
+        .file-list {
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 10px;
+            background: var(--bg-secondary);
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .file-item:hover {
+            background-color: var(--bg-tertiary);
+            transform: translateX(5px);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .file-icon {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .file-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-remove {
+            color: #ff4757;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .file-remove:hover {
+            background-color: #ffeaea;
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: var(--radius);
+            display: none;
+            font-weight: 500;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            display: block;
+        }
+
+        .file-preview {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .file-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-text {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .file-count {
+            margin-top: 10px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .supported-formats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .format-badge {
+            background: var(--bg-tertiary);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .custom-filename {
+            margin: 15px 0;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .filename-input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 16px;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .filename-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .history-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .history-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .user-info {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 32px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .auth-modal, .tutorial-modal, .ai-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-content, .tutorial-content, .ai-content {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            animation: modalAppear 0.5s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .tutorial-content, .ai-content {
+            max-width: 800px;
+        }
+
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .auth-tabs, .tutorial-tabs, .ai-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab, .tutorial-tab, .ai-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active, .tutorial-tab.active, .ai-tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .auth-form, .tutorial-form, .ai-form {
+            display: none;
+        }
+
+        .auth-form.active, .tutorial-form.active, .ai-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        /* New Liquid Loading Screen */
+        .liquid-loading-screen {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .liquid-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .liquid-drop {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            border-radius: 50%;
+            animation: liquid-move 3s ease-in-out infinite;
+            filter: blur(10px);
+            opacity: 0.8;
+        }
+
+        .liquid-drop:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #4cc9f0, #4361ee);
+            animation-delay: -1s;
+            animation-duration: 4s;
+        }
+
+        .liquid-drop:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #3a0ca3, #7209b7);
+            animation-delay: -2s;
+            animation-duration: 5s;
+        }
+
+        @keyframes liquid-move {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                border-radius: 50%;
+            }
+            25% {
+                transform: translate(50px, -30px) scale(1.1);
+                border-radius: 60% 40% 70% 30%;
+            }
+            50% {
+                transform: translate(-40px, 40px) scale(0.9);
+                border-radius: 40% 60% 30% 70%;
+            }
+            75% {
+                transform: translate(-30px, -50px) scale(1.05);
+                border-radius: 70% 30% 60% 40%;
+            }
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+            z-index: 2;
+            margin-top: 50px;
+        }
+
+        .loading-logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .loading-text {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .loading-subtext {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .liquid-progress {
+            width: 300px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            margin: 20px auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .liquid-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4361ee, #3a0ca3);
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .liquid-progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .conversion-animation {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .animation-container {
+            display: inline-block;
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .animation-file {
+            position: absolute;
+            width: 40px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 5px;
+            top: 25px;
+            left: 30px;
+            animation: fileFloat 2s ease-in-out infinite;
+        }
+
+        .animation-file::before {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 2px;
+            top: 8px;
+            left: 12px;
+        }
+
+        .animation-file::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            top: 30px;
+            left: 8px;
+        }
+
+        .animation-arrow {
+            position: absolute;
+            width: 30px;
+            height: 3px;
+            background: var(--secondary);
+            top: 48px;
+            left: 70px;
+            animation: arrowMove 2s ease-in-out infinite;
+        }
+
+        .animation-arrow::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-top: 3px solid var(--secondary);
+            border-right: 3px solid var(--secondary);
+            transform: rotate(45deg);
+            top: -4px;
+            right: -3px;
+        }
+
+        .animation-output {
+            position: absolute;
+            width: 40px;
+            height: 50px;
+            background: var(--success);
+            border-radius: 5px;
+            top: 25px;
+            left: 110px;
+            animation: outputPulse 2s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes fileFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes arrowMove {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(10px); opacity: 0.7; }
+        }
+
+        @keyframes outputPulse {
+            0%, 70% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Camera Styles */
+        .camera-container {
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .camera-preview {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            border-radius: var(--radius);
+            background: #000;
+            margin: 0 auto 15px;
+            display: none;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .camera-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-capture {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-capture:hover {
+            background: #38b2ac;
+        }
+
+        .btn-camera-toggle {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-camera-toggle:hover {
+            background: #3a56d4;
+        }
+
+        .captured-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius);
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Tutorial Styles */
+        .tutorial-steps {
+            margin: 20px 0;
+        }
+
+        .tutorial-step {
+            display: none;
+            text-align: center;
+        }
+
+        .tutorial-step.active {
+            display: block;
+        }
+
+        .tutorial-image {
+            max-width: 100%;
+            border-radius: var(--radius);
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tutorial-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* AI Section Styles */
+        .ai-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .ai-provider, .ai-format {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+        }
+
+        .ai-provider:hover, .ai-format:hover {
+            border-color: var(--primary);
+            background-color: var(--bg-secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-provider.selected, .ai-format.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .ai-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .ai-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .ai-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .ai-prompt {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            resize: vertical;
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .ai-prompt:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .ai-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            display: none;
+        }
+
+        .ai-result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .ai-result-content {
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* API Key Input */
+        .api-key-input {
+            margin: 15px 0;
+            display: none;
+        }
+
+        .api-key-group {
+            margin-bottom: 15px;
+        }
+
+        .api-key-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .api-key-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .api-key-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .api-key-note {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: -1;
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-controls, .user-controls {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .export-options, .ai-options {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+
+        /* Auto-scan animation */
+        .auto-scanning {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auto-scanning::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, transparent, var(--success), transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(300px); }
+        }
+
+        /* Fullscreen styles */
+        body:fullscreen .container {
+            max-width: 100%;
+            border-radius: 0;
+            padding: 20px;
+        }
+
+        body:-webkit-full-screen .container {
+            max-width: 100%;
+            border-radius: 0;
+            padding: 20px;
+        }
+
+        body:-moz-full-screen .container {
+            max-width: 100%;
+            border-radius: 0;
+            padding: 20px;
+        }
+
+        body:-ms-fullscreen .container {
+            max-width: 100%;
+            border-radius: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Liquid Loading Screen -->
+    <div class="liquid-loading-screen" id="loadingScreen">
+        <div class="liquid-container">
+            <div class="liquid-drop"></div>
+            <div class="liquid-drop"></div>
+            <div class="liquid-drop"></div>
+        </div>
+        <div class="loading-content">
+            <div class="loading-logo">
+                <i class="fas fa-file-export"></i>
+            </div>
+            <div class="loading-text">Universal File Converter Pro</div>
+            <div class="loading-subtext">Mempersiapkan pengalaman konversi terbaik untuk Anda</div>
+            <div class="liquid-progress">
+                <div class="liquid-progress-bar" id="loadingProgress"></div>
+            </div>
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security System -->
+    <div class="security-system" id="securitySystem">
+        <div class="security-content">
+            <h2>Security Check</h2>
+            <p>Verifying your identity...</p>
+            <div class="security-animation">
+                <div class="shield-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-file-export"></i>
+                </div>
+                <div class="logo-text">Universal File Converter Pro</div>
+            </div>
+            <div class="header-controls">
+                <div class="connection-status online" id="connectionStatus">
+                    <div class="status-dot"></div>
+                    <span data-i18n="online">Online</span>
+                    <span class="connection-speed">125 Mbps</span>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <select class="language-selector" id="languageSelector">
+                    <option value="id">Indonesia</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="zh">中文</option>
+                    <option value="ja">日本語</option>
+                </select>
+                <button class="btn-tutorial" id="tutorialBtn">
+                    <i class="fas fa-book"></i> <span data-i18n="tutorial">Tutorial</span>
+                </button>
+                <button class="btn-fullscreen" id="fullscreenBtn">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+            <div class="user-controls">
+                <button class="btn-auth btn-login" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> <span data-i18n="login">Login</span>
+                </button>
+                <button class="btn-auth btn-logout" id="logoutBtn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-area">
+                <div class="tabs">
+                    <div class="tab active" data-tab="file"><span data-i18n="fileConverter">File Converter</span></div>
+                    <div class="tab" data-tab="text"><span data-i18n="textConverter">Text Converter</span></div>
+                    <div class="tab" data-tab="camera"><span data-i18n="cameraScanner">Camera Scanner</span></div>
+                    <div class="tab" data-tab="ai"><span data-i18n="aiAssistant">AI Assistant</span></div>
+                </div>
+
+                <!-- File Converter Tab -->
+                <div class="tab-content active" id="fileTab">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3 data-i18n="dragDrop">Seret file ke sini atau klik untuk mengunggah</h3>
+                        <p data-i18n="supportedFormats">Mendukung: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, TXT</p>
+                        <input type="file" class="file-input" id="fileInput" multiple>
+                    </div>
+
+                    <div class="file-list" id="fileList"></div>
+
+                    <div class="export-options">
+                        <div class="export-option" data-format="pdf">
+                            <div class="export-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="export-name">PDF</div>
+                            <div class="export-desc">Portable Document Format</div>
+                        </div>
+                        <div class="export-option" data-format="docx">
+                            <div class="export-icon">
+                                <i class="fas fa-file-word"></i>
+                            </div>
+                            <div class="export-name">DOCX</div>
+                            <div class="export-desc">Microsoft Word Document</div>
+                        </div>
+                        <div class="export-option" data-format="xlsx">
+                            <div class="export-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div class="export-name">XLSX</div>
+                            <div class="export-desc">Microsoft Excel Spreadsheet</div>
+                        </div>
+                        <div class="export-option" data-format="pptx">
+                            <div class="export-icon">
+                                <i class="fas fa-file-powerpoint"></i>
+                            </div>
+                            <div class="export-name">PPTX</div>
+                            <div class="export-desc">Microsoft PowerPoint Presentation</div>
+                        </div>
+                        <div class="export-option" data-format="jpg">
+                            <div class="export-icon">
+                                <i class="fas fa-file-image"></i>
+                            </div>
+                            <div class="export-name">JPG</div>
+                            <div class="export-desc">JPEG Image</div>
+                        </div>
+                        <div class="export-option" data-format="png">
+                            <div class="export-icon">
+                                <i class="fas fa-file-image"></i>
+                            </div>
+                            <div class="export-name">PNG</div>
+                            <div class="export-desc">Portable Network Graphics</div>
+                        </div>
+                        <div class="export-option" data-format="txt">
+                            <div class="export-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="export-name">TXT</div>
+                            <div class="export-desc">Plain Text File</div>
+                        </div>
+                        <div class="export-option" data-format="html">
+                            <div class="export-icon">
+                                <i class="fas fa-file-code"></i>
+                            </div>
+                            <div class="export-name">HTML</div>
+                            <div class="export-desc">Web Page</div>
+                        </div>
+                    </div>
+
+                    <div class="custom-filename" id="customFilename">
+                        <input type="text" class="filename-input" id="filenameInput" placeholder="Masukkan nama file (tanpa ekstensi)" data-i18n-placeholder="fileName">
+                    </div>
+
+                    <div class="conversion-animation" id="conversionAnimation">
+                        <div class="animation-container">
+                            <div class="animation-file"></div>
+                            <div class="animation-arrow"></div>
+                            <div class="animation-output"></div>
+                        </div>
+                        <p data-i18n="converting">Mengonversi file Anda...</p>
+                    </div>
+
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+
+                    <button class="btn" id="convertBtn">
+                        <i class="fas fa-sync-alt"></i> <span data-i18n="convertFiles">Konversi File</span>
+                    </button>
+
+                    <div class="file-preview" id="filePreview"></div>
+
+                    <div class="status success" id="successStatus" data-i18n="conversionSuccess">Konversi berhasil! File telah diunduh secara otomatis.</div>
+                    <div class="status error" id="errorStatus" data-i18n="conversionError">Terjadi kesalahan saat mengonversi file.</div>
+
+                    <div class="instructions">
+                        <h3><i class="fas fa-info-circle"></i> <span data-i18n="instructions">Petunjuk Penggunaan</span></h3>
+                        <ul>
+                            <li data-i18n="instruction1">Pilih file yang ingin dikonversi dengan mengeklik area unggah atau menyeret file ke area tersebut</li>
+                            <li data-i18n="instruction2">Pilih format tujuan dari opsi yang tersedia</li>
+                            <li data-i18n="instruction3">Klik tombol "Konversi File" untuk memulai proses konversi</li>
+                            <li data-i18n="instruction4">File yang telah dikonversi akan diunduh secara otomatis</li>
+                            <li data-i18n="instruction5">Riwayat konversi akan disimpan di panel sebelah kanan</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Text Converter Tab -->
+                <div class="tab-content" id="textTab">
+                    <textarea class="text-input" id="textInput" placeholder="Ketik atau tempel teks Anda di sini..." data-i18n-placeholder="typePasteText"></textarea>
+
+                    <div class="export-options">
+                        <div class="export-option" data-format="pdf">
+                            <div class="export-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="export-name">PDF</div>
+                            <div class="export-desc">Portable Document Format</div>
+                        </div>
+                        <div class="export-option" data-format="docx">
+                            <div class="export-icon">
+                                <i class="fas fa-file-word"></i>
+                            </div>
+                            <div class="export-name">DOCX</div>
+                            <div class="export-desc">Microsoft Word Document</div>
+                        </div>
+                        <div class="export-option" data-format="txt">
+                            <div class="export-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="export-name">TXT</div>
+                            <div class="export-desc">Plain Text File</div>
+                        </div>
+                        <div class="export-option" data-format="html">
+                            <div class="export-icon">
+                                <i class="fas fa-file-code"></i>
+                            </div>
+                            <div class="export-name">HTML</div>
+                            <div class="export-desc">HyperText Markup Language</div>
+                        </div>
+                        <div class="export-option" data-format="xlsx">
+                            <div class="export-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div class="export-name">XLSX</div>
+                            <div class="export-desc">Microsoft Excel Spreadsheet</div>
+                        </div>
+                        <div class="export-option" data-format="pptx">
+                            <div class="export-icon">
+                                <i class="fas fa-file-powerpoint"></i>
+                            </div>
+                            <div class="export-name">PPTX</div>
+                            <div class="export-desc">Microsoft PowerPoint Presentation</div>
+                        </div>
+                    </div>
+
+                    <div class="custom-filename" id="textCustomFilename">
+                        <input type="text" class="filename-input" id="textFilenameInput" placeholder="Masukkan nama file (tanpa ekstensi)" data-i18n-placeholder="fileName">
+                    </div>
+
+                    <button class="btn" id="convertTextBtn">
+                        <i class="fas fa-sync-alt"></i> <span data-i18n="convertText">Konversi Teks</span>
+                    </button>
+
+                    <div class="file-preview" id="textPreview"></div>
+
+                    <div class="status success" id="textSuccessStatus" data-i18n="textConversionSuccess">Konversi berhasil! File telah diunduh secara otomatis.</div>
+                    <div class="status error" id="textErrorStatus" data-i18n="textConversionError">Terjadi kesalahan saat mengonversi teks.</div>
+
+                    <div class="instructions">
+                        <h3><i class="fas fa-info-circle"></i> <span data-i18n="instructions">Petunjuk Penggunaan</span></h3>
+                        <ul>
+                            <li data-i18n="textInstruction1">Ketik atau tempel teks yang ingin dikonversi ke dalam area teks</li>
+                            <li data-i18n="textInstruction2">Pilih format tujuan dari opsi yang tersedia</li>
+                            <li data-i18n="textInstruction3">Klik tombol "Konversi Teks" untuk memulai proses konversi</li>
+                            <li data-i18n="textInstruction4">File yang telah dikonversi akan diunduh secara otomatis</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Camera Scanner Tab -->
+                <div class="tab-content" id="cameraTab">
+                    <div class="camera-container" id="cameraContainer">
+                        <video class="camera-preview" id="cameraPreview" autoplay playsinline></video>
+                        <canvas id="cameraCanvas" style="display: none;"></canvas>
+                        <img class="captured-image" id="capturedImage" alt="Captured Image">
+                        
+                        <div class="camera-controls">
+                            <button class="camera-btn btn-camera-toggle" id="cameraToggleBtn">
+                                <i class="fas fa-camera"></i> <span data-i18n="turnOnCamera">Hidupkan Kamera</span>
+                            </button>
+                            <button class="camera-btn btn-capture" id="captureBtn" disabled>
+                                <i class="fas fa-camera-retro"></i> <span data-i18n="captureImage">Ambil Gambar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="export-options">
+                        <div class="export-option" data-format="pdf">
+                            <div class="export-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="export-name">PDF</div>
+                            <div class="export-desc">Portable Document Format</div>
+                        </div>
+                        <div class="export-option" data-format="jpg">
+                            <div class="export-icon">
+                                <i class="fas fa-file-image"></i>
+                            </div>
+                            <div class="export-name">JPG</div>
+                            <div class="export-desc">JPEG Image</div>
+                        </div>
+                        <div class="export-option" data-format="png">
+                            <div class="export-icon">
+                                <i class="fas fa-file-image"></i>
+                            </div>
+                            <div class="export-name">PNG</div>
+                            <div class="export-desc">Portable Network Graphics</div>
+                        </div>
+                        <div class="export-option" data-format="txt">
+                            <div class="export-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="export-name">TXT</div>
+                            <div class="export-desc">Plain Text File</div>
+                        </div>
+                    </div>
+
+                    <button class="btn" id="convertCameraBtn" disabled>
+                        <i class="fas fa-sync-alt"></i> <span data-i18n="convertImage">Konversi Gambar</span>
+                    </button>
+
+                    <div class="status success" id="cameraSuccessStatus" data-i18n="cameraConversionSuccess">Konversi berhasil! File telah diunduh secara otomatis.</div>
+                    <div class="status error" id="cameraErrorStatus" data-i18n="cameraConversionError">Terjadi kesalahan saat mengonversi gambar.</div>
+
+                    <div class="instructions">
+                        <h3><i class="fas fa-info-circle"></i> <span data-i18n="instructions">Petunjuk Penggunaan</span></h3>
+                        <ul>
+                            <li data-i18n="cameraInstruction1">Klik "Hidupkan Kamera" untuk mengaktifkan kamera perangkat Anda</li>
+                            <li data-i18n="cameraInstruction2">Posisikan dokumen dalam bingkai kamera</li>
+                            <li data-i18n="cameraInstruction3">Sistem akan secara otomatis mendeteksi dan memindai dokumen</li>
+                            <li data-i18n="cameraInstruction4">Klik "Ambil Gambar" untuk menangkap gambar secara manual jika diperlukan</li>
+                            <li data-i18n="cameraInstruction5">Pilih format tujuan dan klik "Konversi Gambar"</li>
+                            <li data-i18n="cameraInstruction6">File yang telah dikonversi akan diunduh secara otomatis</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Tab -->
+                <div class="tab-content" id="aiTab">
+                    <div class="ai-options">
+                        <div class="ai-provider" data-provider="gpt">
+                            <div class="ai-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="ai-name">GPT-4</div>
+                            <div class="ai-desc">OpenAI GPT-4 Model</div>
+                        </div>
+                        <div class="ai-provider" data-provider="claude">
+                            <div class="ai-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="ai-name">Claude</div>
+                            <div class="ai-desc">Anthropic Claude Model</div>
+                        </div>
+                        <div class="ai-provider" data-provider="gemini">
+                            <div class="ai-icon">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <div class="ai-name">Gemini</div>
+                            <div class="ai-desc">Google Gemini Model</div>
+                        </div>
+                    </div>
+
+                    <div class="ai-options">
+                        <div class="ai-format" data-format="summary">
+                            <div class="ai-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="ai-name">Ringkasan</div>
+                            <div class="ai-desc">Ringkas dokumen atau teks</div>
+                        </div>
+                        <div class="ai-format" data-format="translate">
+                            <div class="ai-icon">
+                                <i class="fas fa-language"></i>
+                            </div>
+                            <div class="ai-name">Terjemahkan</div>
+                            <div class="ai-desc">Terjemahkan ke bahasa lain</div>
+                        </div>
+                        <div class="ai-format" data-format="improve">
+                            <div class="ai-icon">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <div class="ai-name">Perbaiki</div>
+                            <div class="ai-desc">Perbaiki tata bahasa & gaya</div>
+                        </div>
+                        <div class="ai-format" data-format="analyze">
+                            <div class="ai-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="ai-name">Analisis</div>
+                            <div class="ai-desc">Analisis konten dokumen</div>
+                        </div>
+                    </div>
+
+                    <!-- API Key Input -->
+                    <div class="api-key-input" id="apiKeyInput">
+                        <div class="api-key-group">
+                            <label class="api-key-label">API Key</label>
+                            <input type="password" class="api-key-field" id="aiApiKey" placeholder="Masukkan API Key Anda">
+                            <p class="api-key-note">API Key Anda disimpan secara lokal dan tidak dibagikan ke server kami.</p>
+                        </div>
+                    </div>
+
+                    <textarea class="ai-prompt" id="aiPrompt" placeholder="Masukkan teks atau unggah file untuk diproses oleh AI..." data-i18n-placeholder="enterTextOrUpload"></textarea>
+
+                    <button class="btn" id="processAiBtn">
+                        <i class="fas fa-cogs"></i> <span data-i18n="processWithAI">Proses dengan AI</span>
+                    </button>
+
+                    <div class="ai-result" id="aiResult">
+                        <div class="ai-result-title" data-i18n="aiResult">Hasil AI:</div>
+                        <div class="ai-result-content" id="aiResultContent"></div>
+                    </div>
+
+                    <div class="instructions">
+                        <h3><i class="fas fa-info-circle"></i> <span data-i18n="instructions">Petunjuk Penggunaan</span></h3>
+                        <ul>
+                            <li data-i18n="aiInstruction1">Pilih model AI yang ingin digunakan</li>
+                            <li data-i18n="aiInstruction2">Pilih jenis pemrosesan yang diinginkan</li>
+                            <li data-i18n="aiInstruction3">Masukkan teks atau unggah file yang ingin diproses</li>
+                            <li data-i18n="aiInstruction4">Klik "Proses dengan AI" untuk memulai pemrosesan</li>
+                            <li data-i18n="aiInstruction5">Hasil akan ditampilkan di area hasil</li>
+                            <li data-i18n="aiInstruction6">Anda dapat menyalin atau mengunduh hasilnya</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-name" id="userName">Nama Pengguna</div>
+                    <div class="user-email" id="userEmail">user@example.com</div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-history"></i> <span data-i18n="conversionHistory">Riwayat Konversi</span>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <!-- History items will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-chart-line"></i> <span data-i18n="statistics">Statistik</span>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span data-i18n="totalConversions">Total Konversi:</span>
+                            <span id="totalConversions">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span data-i18n="todayConversions">Konversi Hari Ini:</span>
+                            <span id="todayConversions">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span data-i18n="storageSpace">Ruang Tersimpan:</span>
+                            <span id="storageSpace">5 GB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-cog"></i> <span data-i18n="settings">Pengaturan</span>
+                    </div>
+                    <div class="settings">
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="autoDownload" checked> <span data-i18n="autoDownload">Unduh Otomatis</span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="saveHistory" checked> <span data-i18n="saveHistory">Simpan Riwayat</span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="highQuality" checked> <span data-i18n="highQuality">Kualitas Tinggi</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>Copyright by: Sky |||| TikTok:Sky_.a2 |||| Tahun:2025</p>
+            <p>© 2025 Universal File Converter Pro. All rights reserved. | Developed with <i class="fas fa-heart" style="color: #e63946;"></i> for seamless file conversion</p>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-content">
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-auth-tab="login">Login</div>
+                <div class="auth-tab" data-auth-tab="register">Register</div>
+            </div>
+
+            <div class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="Masukkan email Anda">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Masukkan password Anda">
+                </div>
+                <button class="btn" id="loginSubmitBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <div class="social-login">
+                    <p style="text-align: center; margin: 15px 0; color: var(--text-secondary);">Atau login dengan</p>
+                    <div id="g_id_onload"
+                         data-client_id="909048506817-j1rokckola977sjnhbpakmpsdh4e2epr.apps.googleusercontent.com"
+                         data-context="signin"
+                         data-ux_mode="popup"
+                         data-callback="handleGoogleSignIn"
+                         data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-shape="rectangular"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">Nama Pengguna</label>
+                    <input type="text" class="form-input" id="registerUsername" placeholder="Masukkan nama pengguna">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="registerEmail" placeholder="Masukkan email Anda">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tanggal Lahir</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select class="form-input" id="registerDay" style="flex: 1;">
+                            <option value="">Hari</option>
+                            <!-- Days will be populated by JavaScript -->
+                        </select>
+                        <select class="form-input" id="registerMonth" style="flex: 1;">
+                            <option value="">Bulan</option>
+                            <!-- Months will be populated by JavaScript -->
+                        </select>
+                        <select class="form-input" id="registerYear" style="flex: 1;">
+                            <option value="">Tahun</option>
+                            <!-- Years will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="registerPassword" placeholder="Masukkan password Anda">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Konfirmasi Password</label>
+                    <input type="password" class="form-input" id="registerConfirmPassword" placeholder="Konfirmasi password Anda">
+                </div>
+                <button class="btn" id="registerSubmitBtn">
+                    <i class="fas fa-user-plus"></i> Daftar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div class="tutorial-modal" id="tutorialModal">
+        <div class="tutorial-content">
+            <div class="tutorial-tabs">
+                <div class="tutorial-tab active" data-tutorial-tab="file">File Converter</div>
+                <div class="tutorial-tab" data-tutorial-tab="text">Text Converter</div>
+                <div class="tutorial-tab" data-tutorial-tab="camera">Camera Scanner</div>
+                <div class="tutorial-tab" data-tutorial-tab="ai">AI Assistant</div>
+            </div>
+
+            <div class="tutorial-steps">
+                <div class="tutorial-step active" data-tutorial-step="file">
+                    <h3>Mengonversi File</h3>
+                    <p>Ikuti langkah-langkah berikut untuk mengonversi file:</p>
+                    <ol>
+                        <li>Klik area unggah atau seret file ke area tersebut</li>
+                        <li>Pilih format tujuan dari opsi yang tersedia</li>
+                        <li>Klik tombol "Konversi File" untuk memulai proses</li>
+                        <li>Tunggu hingga proses selesai dan file akan diunduh otomatis</li>
+                    </ol>
+                    <div class="tutorial-image-placeholder" style="background: var(--bg-secondary); height: 200px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); margin: 15px 0;">
+                        <i class="fas fa-image" style="font-size: 48px; color: var(--text-secondary);"></i>
+                    </div>
+                </div>
+
+                <div class="tutorial-step" data-tutorial-step="text">
+                    <h3>Mengonversi Teks</h3>
+                    <p>Ikuti langkah-langkah berikut untuk mengonversi teks:</p>
+                    <ol>
+                        <li>Ketik atau tempel teks ke dalam area teks</li>
+                        <li>Pilih format tujuan dari opsi yang tersedia</li>
+                        <li>Klik tombol "Konversi Teks" untuk memulai proses</li>
+                        <li>Tunggu hingga proses selesai dan file akan diunduh otomatis</li>
+                    </ol>
+                    <div class="tutorial-image-placeholder" style="background: var(--bg-secondary); height: 200px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); margin: 15px 0;">
+                        <i class="fas fa-image" style="font-size: 48px; color: var(--text-secondary);"></i>
+                    </div>
+                </div>
+
+                <div class="tutorial-step" data-tutorial-step="camera">
+                    <h3>Memindai dengan Kamera</h3>
+                    <p>Ikuti langkah-langkah berikut untuk memindai dokumen:</p>
+                    <ol>
+                        <li>Klik "Hidupkan Kamera" untuk mengaktifkan kamera</li>
+                        <li>Posisikan dokumen dalam bingkai kamera</li>
+                        <li>Sistem akan otomatis mendeteksi dan memindai dokumen</li>
+                        <li>Klik "Ambil Gambar" untuk menangkap gambar secara manual</li>
+                        <li>Pilih format tujuan dan klik "Konversi Gambar"</li>
+                    </ol>
+                    <div class="tutorial-image-placeholder" style="background: var(--bg-secondary); height: 200px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); margin: 15px 0;">
+                        <i class="fas fa-image" style="font-size: 48px; color: var(--text-secondary);"></i>
+                    </div>
+                </div>
+
+                <div class="tutorial-step" data-tutorial-step="ai">
+                    <h3>Menggunakan AI Assistant</h3>
+                    <p>Ikuti langkah-langkah berikut untuk menggunakan AI Assistant:</p>
+                    <ol>
+                        <li>Pilih model AI yang ingin digunakan</li>
+                        <li>Pilih jenis pemrosesan yang diinginkan</li>
+                        <li>Masukkan teks atau unggah file yang ingin diproses</li>
+                        <li>Klik "Proses dengan AI" untuk memulai pemrosesan</li>
+                        <li>Hasil akan ditampilkan di area hasil</li>
+                    </ol>
+                    <div class="tutorial-image-placeholder" style="background: var(--bg-secondary); height: 200px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); margin: 15px 0;">
+                        <i class="fas fa-image" style="font-size: 48px; color: var(--text-secondary);"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tutorial-navigation">
+                <button class="btn-tutorial" id="prevTutorialStep">
+                    <i class="fas fa-arrow-left"></i> Sebelumnya
+                </button>
+                <button class="btn-tutorial" id="nextTutorialStep">
+                    Selanjutnya <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Language translations
+        const translations = {
+            id: {
+                // File Converter
+                "fileConverter": "Konverter File",
+                "textConverter": "Konverter Teks",
+                "cameraScanner": "Pemindai Kamera",
+                "aiAssistant": "Asisten AI",
+                "dragDrop": "Seret file ke sini atau klik untuk mengunggah",
+                "supportedFormats": "Mendukung: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, TXT",
+                "convertFiles": "Konversi File",
+                "converting": "Mengonversi file Anda...",
+                "conversionSuccess": "Konversi berhasil! File telah diunduh secara otomatis.",
+                "conversionError": "Terjadi kesalahan saat mengonversi file.",
+                "instructions": "Petunjuk Penggunaan",
+                "instruction1": "Pilih file yang ingin dikonversi dengan mengeklik area unggah atau menyeret file ke area tersebut",
+                "instruction2": "Pilih format tujuan dari opsi yang tersedia",
+                "instruction3": "Klik tombol \"Konversi File\" untuk memulai proses konversi",
+                "instruction4": "File yang telah dikonversi akan diunduh secara otomatis",
+                "instruction5": "Riwayat konversi akan disimpan di panel sebelah kanan",
+                
+                // Text Converter
+                "typePasteText": "Ketik atau tempel teks Anda di sini...",
+                "convertText": "Konversi Teks",
+                "textConversionSuccess": "Konversi berhasil! File telah diunduh secara otomatis.",
+                "textConversionError": "Terjadi kesalahan saat mengonversi teks.",
+                "textInstruction1": "Ketik atau tempel teks yang ingin dikonversi ke dalam area teks",
+                "textInstruction2": "Pilih format tujuan dari opsi yang tersedia",
+                "textInstruction3": "Klik tombol \"Konversi Teks\" untuk memulai proses konversi",
+                "textInstruction4": "File yang telah dikonversi akan diunduh secara otomatis",
+                
+                // Camera Scanner
+                "turnOnCamera": "Hidupkan Kamera",
+                "captureImage": "Ambil Gambar",
+                "convertImage": "Konversi Gambar",
+                "cameraConversionSuccess": "Konversi berhasil! File telah diunduh secara otomatis.",
+                "cameraConversionError": "Terjadi kesalahan saat mengonversi gambar.",
+                "cameraInstruction1": "Klik \"Hidupkan Kamera\" untuk mengaktifkan kamera perangkat Anda",
+                "cameraInstruction2": "Posisikan dokumen dalam bingkai kamera",
+                "cameraInstruction3": "Sistem akan secara otomatis mendeteksi dan memindai dokumen",
+                "cameraInstruction4": "Klik \"Ambil Gambar\" untuk menangkap gambar secara manual jika diperlukan",
+                "cameraInstruction5": "Pilih format tujuan dan klik \"Konversi Gambar\"",
+                "cameraInstruction6": "File yang telah dikonversi akan diunduh secara otomatis",
+                
+                // AI Assistant
+                "processWithAI": "Proses dengan AI",
+                "enterTextOrUpload": "Masukkan teks atau unggah file untuk diproses oleh AI...",
+                "aiResult": "Hasil AI:",
+                "aiInstruction1": "Pilih model AI yang ingin digunakan",
+                "aiInstruction2": "Pilih jenis pemrosesan yang diinginkan",
+                "aiInstruction3": "Masukkan teks atau unggah file yang ingin diproses",
+                "aiInstruction4": "Klik \"Proses dengan AI\" untuk memulai pemrosesan",
+                "aiInstruction5": "Hasil akan ditampilkan di area hasil",
+                "aiInstruction6": "Anda dapat menyalin atau mengunduh hasilnya",
+                
+                // Common
+                "online": "Online",
+                "offline": "Offline",
+                "tutorial": "Tutorial",
+                "login": "Login",
+                "logout": "Logout",
+                "conversionHistory": "Riwayat Konversi",
+                "statistics": "Statistik",
+                "settings": "Pengaturan",
+                "totalConversions": "Total Konversi:",
+                "todayConversions": "Konversi Hari Ini:",
+                "storageSpace": "Ruang Tersimpan:",
+                "autoDownload": "Unduh Otomatis",
+                "saveHistory": "Simpan Riwayat",
+                "highQuality": "Kualitas Tinggi",
+                "fileName": "Masukkan nama file (tanpa ekstensi)",
+                "copyright": "© 2025 Universal File Converter Pro. All rights reserved. | Developed with ❤️ for seamless file conversion"
+            },
+            en: {
+                // File Converter
+                "fileConverter": "File Converter",
+                "textConverter": "Text Converter",
+                "cameraScanner": "Camera Scanner",
+                "aiAssistant": "AI Assistant",
+                "dragDrop": "Drag & drop files here or click to upload",
+                "supportedFormats": "Supports: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, GIF, TXT",
+                "convertFiles": "Convert Files",
+                "converting": "Converting your files...",
+                "conversionSuccess": "Conversion successful! File has been automatically downloaded.",
+                "conversionError": "An error occurred while converting the file.",
+                "instructions": "Usage Instructions",
+                "instruction1": "Select files to convert by clicking the upload area or dragging files to it",
+                "instruction2": "Choose the target format from the available options",
+                "instruction3": "Click the \"Convert Files\" button to start the conversion process",
+                "instruction4": "The converted file will be automatically downloaded",
+                "instruction5": "Conversion history will be saved in the right panel",
+                
+                // Text Converter
+                "typePasteText": "Type or paste your text here...",
+                "convertText": "Convert Text",
+                "textConversionSuccess": "Conversion successful! File has been automatically downloaded.",
+                "textConversionError": "An error occurred while converting the text.",
+                "textInstruction1": "Type or paste the text you want to convert into the text area",
+                "textInstruction2": "Choose the target format from the available options",
+                "textInstruction3": "Click the \"Convert Text\" button to start the conversion process",
+                "textInstruction4": "The converted file will be automatically downloaded",
+                
+                // Camera Scanner
+                "turnOnCamera": "Turn On Camera",
+                "captureImage": "Capture Image",
+                "convertImage": "Convert Image",
+                "cameraConversionSuccess": "Conversion successful! File has been automatically downloaded.",
+                "cameraConversionError": "An error occurred while converting the image.",
+                "cameraInstruction1": "Click \"Turn On Camera\" to activate your device's camera",
+                "cameraInstruction2": "Position the document within the camera frame",
+                "cameraInstruction3": "The system will automatically detect and scan the document",
+                "cameraInstruction4": "Click \"Capture Image\" to manually capture an image if needed",
+                "cameraInstruction5": "Select the target format and click \"Convert Image\"",
+                "cameraInstruction6": "The converted file will be automatically downloaded",
+                
+                // AI Assistant
+                "processWithAI": "Process with AI",
+                "enterTextOrUpload": "Enter text or upload a file to be processed by AI...",
+                "aiResult": "AI Result:",
+                "aiInstruction1": "Select the AI model you want to use",
+                "aiInstruction2": "Choose the type of processing you want",
+                "aiInstruction3": "Enter text or upload the file you want to process",
+                "aiInstruction4": "Click \"Process with AI\" to start processing",
+                "aiInstruction5": "The result will be displayed in the result area",
+                "aiInstruction6": "You can copy or download the result",
+                
+                // Common
+                "online": "Online",
+                "offline": "Offline",
+                "tutorial": "Tutorial",
+                "login": "Login",
+                "logout": "Logout",
+                "conversionHistory": "Conversion History",
+                "statistics": "Statistics",
+                "settings": "Settings",
+                "totalConversions": "Total Conversions:",
+                "todayConversions": "Today's Conversions:",
+                "storageSpace": "Storage Space:",
+                "autoDownload": "Auto Download",
+                "saveHistory": "Save History",
+                "highQuality": "High Quality",
+                "fileName": "Enter file name (without extension)",
+                "copyright": "© 2025 Universal File Converter Pro. All rights reserved. | Developed with ❤️ for seamless file conversion"
+            },
+            // Other languages would follow the same pattern
+            es: {
+                "fileConverter": "Convertidor de Archivos",
+                "textConverter": "Convertidor de Texto",
+                "cameraScanner": "Escáner de Cámara",
+                "aiAssistant": "Asistente de IA",
+                "dragDrop": "Arrastra y suelta archivos aquí o haz clic para subir",
+                "convertFiles": "Convertir Archivos",
+                "converting": "Convirtiendo tus archivos...",
+                "conversionSuccess": "¡Conversión exitosa! El archivo se ha descargado automáticamente.",
+                "login": "Iniciar Sesión",
+                "logout": "Cerrar Sesión",
+                "tutorial": "Tutorial",
+                // ... other translations for Spanish
+            },
+            fr: {
+                "fileConverter": "Convertisseur de Fichiers",
+                "textConverter": "Convertisseur de Texte",
+                "cameraScanner": "Scanner de Caméra",
+                "aiAssistant": "Assistant IA",
+                "dragDrop": "Glissez-déposez des fichiers ici ou cliquez pour télécharger",
+                "convertFiles": "Convertir les Fichiers",
+                "converting": "Conversion de vos fichiers...",
+                "conversionSuccess": "Conversion réussie ! Le fichier a été téléchargé automatiquement.",
+                "login": "Connexion",
+                "logout": "Déconnexion",
+                "tutorial": "Tutoriel",
+                // ... other translations for French
+            },
+            de: {
+                "fileConverter": "Datei-Konverter",
+                "textConverter": "Text-Konverter",
+                "cameraScanner": "Kamera-Scanner",
+                "aiAssistant": "KI-Assistent",
+                "dragDrop": "Ziehen Sie Dateien hierher oder klicken Sie zum Hochladen",
+                "convertFiles": "Dateien konvertieren",
+                "converting": "Ihre Dateien werden konvertiert...",
+                "conversionSuccess": "Konvertierung erfolgreich! Die Datei wurde automatisch heruntergeladen.",
+                "login": "Anmelden",
+                "logout": "Abmelden",
+                "tutorial": "Tutorial",
+                // ... other translations for German
+            },
+            zh: {
+                "fileConverter": "文件转换器",
+                "textConverter": "文本转换器",
+                "cameraScanner": "相机扫描仪",
+                "aiAssistant": "AI助手",
+                "dragDrop": "将文件拖放到此处或点击上传",
+                "convertFiles": "转换文件",
+                "converting": "正在转换您的文件...",
+                "conversionSuccess": "转换成功！文件已自动下载。",
+                "login": "登录",
+                "logout": "退出",
+                "tutorial": "教程",
+                // ... other translations for Chinese
+            },
+            ja: {
+                "fileConverter": "ファイルコンバーター",
+                "textConverter": "テキストコンバーター",
+                "cameraScanner": "カメラスキャナー",
+                "aiAssistant": "AIアシスタント",
+                "dragDrop": "ファイルをここにドラッグ＆ドロップするか、クリックしてアップロード",
+                "convertFiles": "ファイルを変換",
+                "converting": "ファイルを変換中...",
+                "conversionSuccess": "変換が成功しました！ファイルは自動的にダウンロードされました。",
+                "login": "ログイン",
+                "logout": "ログアウト",
+                "tutorial": "チュートリアル",
+                // ... other translations for Japanese
+            }
+        };
+
+        // Current language
+        let currentLanguage = 'id';
+
+        // Function to change language
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            document.getElementById('languageSelector').value = lang;
+            
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+            
+            // Update titles and other attributes as needed
+            document.querySelectorAll('[data-i18n-title]').forEach(element => {
+                const key = element.getAttribute('data-i18n-title');
+                if (translations[lang] && translations[lang][key]) {
+                    element.title = translations[lang][key];
+                }
+            });
+        }
+
+        // Function to simulate file conversion
+        function simulateConversion(file, targetFormat, callback) {
+            // Show conversion animation
+            document.getElementById('conversionAnimation').style.display = 'block';
+            document.getElementById('progressBar').style.display = 'block';
+            
+            // Simulate conversion progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                document.getElementById('progress').style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(progressInterval);
+                    
+                    // Hide animation and show success
+                    setTimeout(() => {
+                        document.getElementById('conversionAnimation').style.display = 'none';
+                        document.getElementById('progressBar').style.display = 'none';
+                        document.getElementById('successStatus').style.display = 'block';
+                        
+                        // Reset progress bar
+                        document.getElementById('progress').style.width = '0%';
+                        
+                        // Generate a download
+                        const fileName = document.getElementById('filenameInput').value || file.name.split('.')[0];
+                        const blob = new Blob([`Converted ${file.name} to ${targetFormat}`], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${fileName}.${targetFormat}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        // Add to history
+                        addToHistory(file.name, targetFormat, fileName);
+                        
+                        // Call callback
+                        if (callback) callback();
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Function to add conversion to history
+        function addToHistory(originalFile, targetFormat, convertedFile) {
+            const historyList = document.getElementById('historyList');
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            
+            const now = new Date();
+            const dateStr = now.toLocaleDateString();
+            const timeStr = now.toLocaleTimeString();
+            
+            historyItem.innerHTML = `
+                <div class="history-name">${convertedFile}.${targetFormat}</div>
+                <div class="history-details">
+                    <span>Dari: ${originalFile}</span>
+                    <span>${dateStr} ${timeStr}</span>
+                </div>
+            `;
+            
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            
+            // Update statistics
+            updateStatistics();
+        }
+
+        // Function to update statistics
+        function updateStatistics() {
+            const historyItems = document.querySelectorAll('.history-item').length;
+            document.getElementById('totalConversions').textContent = historyItems;
+            document.getElementById('todayConversions').textContent = Math.floor(historyItems / 3); // Simulate today's conversions
+        }
+
+        // Function to initialize the app
+        function initApp() {
+            // Simulate loading process
+            let progress = 0;
+            const loadingInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                document.getElementById('loadingProgress').style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(loadingInterval);
+                    
+                    // Hide loading screen and show main container after a delay
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('mainContainer').style.display = 'block';
+                        
+                        // Initialize components
+                        initComponents();
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Function to initialize components
+        function initComponents() {
+            // Initialize language
+            changeLanguage('id');
+            
+            // Initialize date selects for registration
+            initDateSelects();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Check if user is already logged in
+            checkLoginStatus();
+        }
+
+        // Function to initialize date selects
+        function initDateSelects() {
+            // Days
+            const daySelect = document.getElementById('registerDay');
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+            
+            // Months
+            const monthSelect = document.getElementById('registerMonth');
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+            
+            // Years
+            const yearSelect = document.getElementById('registerYear');
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= currentYear - 100; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // Function to set up event listeners
+        function setupEventListeners() {
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Language selector
+            document.getElementById('languageSelector').addEventListener('change', (e) => {
+                changeLanguage(e.target.value);
+            });
+            
+            // Tutorial button
+            document.getElementById('tutorialBtn').addEventListener('click', showTutorial);
+            
+            // Fullscreen button
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+            
+            // Login button
+            document.getElementById('loginBtn').addEventListener('click', showAuthModal);
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Auth modal tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const tabName = e.target.getAttribute('data-auth-tab');
+                    switchAuthTab(tabName);
+                });
+            });
+            
+            // Login form submission
+            document.getElementById('loginSubmitBtn').addEventListener('click', login);
+            
+            // Register form submission
+            document.getElementById('registerSubmitBtn').addEventListener('click', register);
+            
+            // Tutorial navigation
+            document.getElementById('prevTutorialStep').addEventListener('click', prevTutorialStep);
+            document.getElementById('nextTutorialStep').addEventListener('click', nextTutorialStep);
+            
+            // Tutorial tabs
+            document.querySelectorAll('.tutorial-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const tabName = e.target.getAttribute('data-tutorial-tab');
+                    switchTutorialTab(tabName);
+                });
+            });
+            
+            // Main tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const tabName = e.target.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+            
+            // File upload area
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('highlight');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('highlight');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('highlight');
+                handleFiles(e.dataTransfer.files);
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+            
+            // Export options
+            document.querySelectorAll('.export-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    // Remove selected class from all options
+                    document.querySelectorAll('.export-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    e.currentTarget.classList.add('selected');
+                    
+                    // Show custom filename input
+                    document.getElementById('customFilename').style.display = 'block';
+                });
+            });
+            
+            // Convert button
+            document.getElementById('convertBtn').addEventListener('click', convertFiles);
+            
+            // Text convert button
+            document.getElementById('convertTextBtn').addEventListener('click', convertText);
+            
+            // AI process button
+            document.getElementById('processAiBtn').addEventListener('click', processWithAI);
+            
+            // AI providers
+            document.querySelectorAll('.ai-provider').forEach(provider => {
+                provider.addEventListener('click', (e) => {
+                    // Remove selected class from all providers
+                    document.querySelectorAll('.ai-provider').forEach(prov => {
+                        prov.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked provider
+                    e.currentTarget.classList.add('selected');
+                    
+                    // Show API key input
+                    document.getElementById('apiKeyInput').style.display = 'block';
+                });
+            });
+            
+            // AI formats
+            document.querySelectorAll('.ai-format').forEach(format => {
+                format.addEventListener('click', (e) => {
+                    // Remove selected class from all formats
+                    document.querySelectorAll('.ai-format').forEach(fmt => {
+                        fmt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked format
+                    e.currentTarget.classList.add('selected');
+                });
+            });
+            
+            // Camera controls
+            document.getElementById('cameraToggleBtn').addEventListener('click', toggleCamera);
+            document.getElementById('captureBtn').addEventListener('click', captureImage);
+            document.getElementById('convertCameraBtn').addEventListener('click', convertCameraImage);
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target.id === 'authModal') {
+                    document.getElementById('authModal').style.display = 'none';
+                }
+                if (e.target.id === 'tutorialModal') {
+                    document.getElementById('tutorialModal').style.display = 'none';
+                }
+            });
+        }
+
+        // Function to toggle theme
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+
+        // Function to show tutorial
+        function showTutorial() {
+            document.getElementById('tutorialModal').style.display = 'flex';
+        }
+
+        // Function to toggle fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Function to show auth modal
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'flex';
+        }
+
+        // Function to switch auth tab
+        function switchAuthTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.auth-tab[data-auth-tab="${tabName}"]`).classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(`${tabName}Form`).classList.add('active');
+        }
+
+        // Function to login
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (email && password) {
+                // Simulate login process
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('userName').textContent = email.split('@')[0];
+                document.getElementById('userEmail').textContent = email;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'block';
+                document.getElementById('authModal').style.display = 'none';
+                
+                // Show success message
+                alert('Login berhasil!');
+            } else {
+                alert('Harap isi semua field!');
+            }
+        }
+
+        // Function to register
+        function register() {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const day = document.getElementById('registerDay').value;
+            const month = document.getElementById('registerMonth').value;
+            const year = document.getElementById('registerYear').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (username && email && day && month && year && password && confirmPassword) {
+                if (password === confirmPassword) {
+                    // Simulate registration process
+                    document.getElementById('userInfo').style.display = 'block';
+                    document.getElementById('userName').textContent = username;
+                    document.getElementById('userEmail').textContent = email;
+                    document.getElementById('loginBtn').style.display = 'none';
+                    document.getElementById('logoutBtn').style.display = 'block';
+                    document.getElementById('authModal').style.display = 'none';
+                    
+                    // Show success message
+                    alert('Registrasi berhasil!');
+                } else {
+                    alert('Password dan konfirmasi password tidak cocok!');
+                }
+            } else {
+                alert('Harap isi semua field!');
+            }
+        }
+
+        // Function to logout
+        function logout() {
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('loginBtn').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'none';
+            
+            // Show success message
+            alert('Logout berhasil!');
+        }
+
+        // Function to check login status
+        function checkLoginStatus() {
+            // In a real app, this would check for existing login session
+            // For demo purposes, we'll assume user is not logged in initially
+        }
+
+        // Function to switch tutorial tab
+        function switchTutorialTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tutorial-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.tutorial-tab[data-tutorial-tab="${tabName}"]`).classList.add('active');
+            
+            // Update steps
+            document.querySelectorAll('.tutorial-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.querySelector(`.tutorial-step[data-tutorial-step="${tabName}"]`).classList.add('active');
+        }
+
+        // Function to go to previous tutorial step
+        function prevTutorialStep() {
+            // This would navigate between steps in a multi-step tutorial
+            // For now, we'll just show an alert
+            alert('Navigasi ke langkah sebelumnya');
+        }
+
+        // Function to go to next tutorial step
+        function nextTutorialStep() {
+            // This would navigate between steps in a multi-step tutorial
+            // For now, we'll just show an alert
+            alert('Navigasi ke langkah berikutnya');
+        }
+
+        // Function to switch main tab
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+            
+            // Update tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            
+            // Special handling for camera tab
+            if (tabName === 'camera') {
+                // Auto-start camera if not already started
+                if (!window.cameraActive) {
+                    setTimeout(() => {
+                        toggleCamera();
+                    }, 500);
+                }
+            }
+        }
+
+        // Function to handle files
+        function handleFiles(files) {
+            const fileList = document.getElementById('fileList');
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                // Get file icon based on type
+                let fileIcon = 'fa-file';
+                if (file.type.includes('image')) fileIcon = 'fa-file-image';
+                else if (file.type.includes('pdf')) fileIcon = 'fa-file-pdf';
+                else if (file.type.includes('word')) fileIcon = 'fa-file-word';
+                else if (file.type.includes('excel')) fileIcon = 'fa-file-excel';
+                else if (file.type.includes('powerpoint')) fileIcon = 'fa-file-powerpoint';
+                else if (file.type.includes('text')) fileIcon = 'fa-file-alt';
+                
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">
+                            <i class="fas ${fileIcon}"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <div class="file-remove" data-file-name="${file.name}">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                `;
+                
+                fileList.appendChild(fileItem);
+                
+                // Add event listener to remove button
+                fileItem.querySelector('.file-remove').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    fileItem.remove();
+                });
+            }
+            
+            // Show file count
+            const fileCount = document.querySelectorAll('.file-item').length;
+            if (fileCount > 0) {
+                document.getElementById('fileCount').textContent = `${fileCount} file(s) selected`;
+            }
+        }
+
+        // Function to format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Function to convert files
+        function convertFiles() {
+            const selectedFormat = document.querySelector('.export-option.selected');
+            
+            if (!selectedFormat) {
+                alert('Pilih format tujuan terlebih dahulu!');
+                return;
+            }
+            
+            const fileItems = document.querySelectorAll('.file-item');
+            if (fileItems.length === 0) {
+                alert('Tidak ada file yang dipilih!');
+                return;
+            }
+            
+            const targetFormat = selectedFormat.getAttribute('data-format');
+            
+            // Simulate conversion for each file
+            fileItems.forEach(item => {
+                const fileName = item.querySelector('.file-name').textContent;
+                const file = {
+                    name: fileName,
+                    size: 0 // We don't have the actual file object in this demo
+                };
+                
+                simulateConversion(file, targetFormat, () => {
+                    // Callback after conversion
+                    item.remove();
+                });
+            });
+        }
+
+        // Function to convert text
+        function convertText() {
+            const text = document.getElementById('textInput').value;
+            const selectedFormat = document.querySelector('.export-option.selected');
+            
+            if (!text) {
+                alert('Masukkan teks terlebih dahulu!');
+                return;
+            }
+            
+            if (!selectedFormat) {
+                alert('Pilih format tujuan terlebih dahulu!');
+                return;
+            }
+            
+            const targetFormat = selectedFormat.getAttribute('data-format');
+            const fileName = document.getElementById('textFilenameInput').value || 'converted_text';
+            
+            // Show conversion animation
+            document.getElementById('conversionAnimation').style.display = 'block';
+            document.getElementById('progressBar').style.display = 'block';
+            
+            // Simulate conversion progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                document.getElementById('progress').style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(progressInterval);
+                    
+                    // Hide animation and show success
+                    setTimeout(() => {
+                        document.getElementById('conversionAnimation').style.display = 'none';
+                        document.getElementById('progressBar').style.display = 'none';
+                        document.getElementById('textSuccessStatus').style.display = 'block';
+                        
+                        // Reset progress bar
+                        document.getElementById('progress').style.width = '0%';
+                        
+                        // Generate a download
+                        const blob = new Blob([text], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${fileName}.${targetFormat}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        // Add to history
+                        addToHistory('text_input', targetFormat, fileName);
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Function to process with AI
+        function processWithAI() {
+            const prompt = document.getElementById('aiPrompt').value;
+            const selectedProvider = document.querySelector('.ai-provider.selected');
+            const selectedFormat = document.querySelector('.ai-format.selected');
+            const apiKey = document.getElementById('aiApiKey').value;
+            
+            if (!prompt) {
+                alert('Masukkan teks atau unggah file terlebih dahulu!');
+                return;
+            }
+            
+            if (!selectedProvider) {
+                alert('Pilih model AI terlebih dahulu!');
+                return;
+            }
+            
+            if (!selectedFormat) {
+                alert('Pilih jenis pemrosesan terlebih dahulu!');
+                return;
+            }
+            
+            if (!apiKey) {
+                alert('Masukkan API Key terlebih dahulu!');
+                return;
+            }
+            
+            const provider = selectedProvider.getAttribute('data-provider');
+            const format = selectedFormat.getAttribute('data-format');
+            
+            // Show conversion animation
+            document.getElementById('conversionAnimation').style.display = 'block';
+            document.getElementById('progressBar').style.display = 'block';
+            
+            // Simulate AI processing
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                document.getElementById('progress').style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(progressInterval);
+                    
+                    // Hide animation and show result
+                    setTimeout(() => {
+                        document.getElementById('conversionAnimation').style.display = 'none';
+                        document.getElementById('progressBar').style.display = 'none';
+                        
+                        // Reset progress bar
+                        document.getElementById('progress').style.width = '0%';
+                        
+                        // Show AI result
+                        const aiResult = document.getElementById('aiResult');
+                        const aiResultContent = document.getElementById('aiResultContent');
+                        
+                        // Generate mock AI response based on format
+                        let response = '';
+                        switch (format) {
+                            case 'summary':
+                                response = `Ringkasan dari teks yang Anda berikan:\n\n${prompt.substring(0, 100)}... [Teks telah diringkas oleh ${provider.toUpperCase()}]`;
+                                break;
+                            case 'translate':
+                                response = `Terjemahan dari teks yang Anda berikan:\n\n"${prompt}"\n\nMenjadi:\n\n"[Terjemahan bahasa yang diminta oleh ${provider.toUpperCase()}]"`;
+                                break;
+                            case 'improve':
+                                response = `Teks yang telah diperbaiki:\n\n${prompt}\n\n[Saran perbaikan tata bahasa dan gaya oleh ${provider.toUpperCase()}]`;
+                                break;
+                            case 'analyze':
+                                response = `Analisis dari teks yang Anda berikan:\n\n- Panjang teks: ${prompt.length} karakter\n- Jumlah kata: ${prompt.split(' ').length}\n- Sentimen: Positif\n- Topik utama: Teknologi\n\n[Analisis dilakukan oleh ${provider.toUpperCase()}]`;
+                                break;
+                            default:
+                                response = `Hasil pemrosesan oleh ${provider.toUpperCase()}:\n\n${prompt}`;
+                        }
+                        
+                        aiResultContent.textContent = response;
+                        aiResult.style.display = 'block';
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Camera functions
+        let cameraStream = null;
+        let cameraActive = false;
+
+        function toggleCamera() {
+            const cameraPreview = document.getElementById('cameraPreview');
+            const cameraToggleBtn = document.getElementById('cameraToggleBtn');
+            const captureBtn = document.getElementById('captureBtn');
+            const convertCameraBtn = document.getElementById('convertCameraBtn');
+            
+            if (!cameraActive) {
+                // Start camera
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(stream => {
+                            cameraStream = stream;
+                            cameraPreview.srcObject = stream;
+                            cameraPreview.style.display = 'block';
+                            cameraActive = true;
+                            cameraToggleBtn.innerHTML = '<i class="fas fa-stop"></i> Matikan Kamera';
+                            captureBtn.disabled = false;
+                            convertCameraBtn.disabled = false;
+                            
+                            // Add auto-scan class for animation
+                            cameraPreview.classList.add('auto-scanning');
+                            
+                            // Simulate auto document detection
+                            setTimeout(() => {
+                                alert('Dokumen terdeteksi secara otomatis!');
+                            }, 2000);
+                        })
+                        .catch(error => {
+                            console.error('Error accessing camera:', error);
+                            alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
+                        });
+                } else {
+                    alert('Browser Anda tidak mendukung akses kamera.');
+                }
+            } else {
+                // Stop camera
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraPreview.srcObject = null;
+                    cameraPreview.style.display = 'none';
+                    cameraActive = false;
+                    cameraToggleBtn.innerHTML = '<i class="fas fa-camera"></i> Hidupkan Kamera';
+                    captureBtn.disabled = true;
+                    convertCameraBtn.disabled = true;
+                    
+                    // Remove auto-scan class
+                    cameraPreview.classList.remove('auto-scanning');
+                }
+            }
+        }
+
+        function captureImage() {
+            const cameraPreview = document.getElementById('cameraPreview');
+            const cameraCanvas = document.getElementById('cameraCanvas');
+            const capturedImage = document.getElementById('capturedImage');
+            
+            // Draw current camera frame to canvas
+            const context = cameraCanvas.getContext('2d');
+            cameraCanvas.width = cameraPreview.videoWidth;
+            cameraCanvas.height = cameraPreview.videoHeight;
+            context.drawImage(cameraPreview, 0, 0, cameraCanvas.width, cameraCanvas.height);
+            
+            // Convert canvas to data URL and set as image source
+            capturedImage.src = cameraCanvas.toDataURL('image/png');
+            capturedImage.style.display = 'block';
+            
+            alert('Gambar berhasil diambil!');
+        }
+
+        function convertCameraImage() {
+            const capturedImage = document.getElementById('capturedImage');
+            const selectedFormat = document.querySelector('.export-option.selected');
+            
+            if (!capturedImage.src || capturedImage.src === '') {
+                alert('Tidak ada gambar yang diambil!');
+                return;
+            }
+            
+            if (!selectedFormat) {
+                alert('Pilih format tujuan terlebih dahulu!');
+                return;
+            }
+            
+            const targetFormat = selectedFormat.getAttribute('data-format');
+            const fileName = 'captured_image';
+            
+            // Show conversion animation
+            document.getElementById('conversionAnimation').style.display = 'block';
+            document.getElementById('progressBar').style.display = 'block';
+            
+            // Simulate conversion progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                document.getElementById('progress').style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(progressInterval);
+                    
+                    // Hide animation and show success
+                    setTimeout(() => {
+                        document.getElementById('conversionAnimation').style.display = 'none';
+                        document.getElementById('progressBar').style.display = 'none';
+                        document.getElementById('cameraSuccessStatus').style.display = 'block';
+                        
+                        // Reset progress bar
+                        document.getElementById('progress').style.width = '0%';
+                        
+                        // Generate a download
+                        const a = document.createElement('a');
+                        a.href = capturedImage.src;
+                        a.download = `${fileName}.${targetFormat}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        
+                        // Add to history
+                        addToHistory('camera_capture', targetFormat, fileName);
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Google Sign-In handler
+        function handleGoogleSignIn(response) {
+            // This would handle the Google Sign-In response
+            console.log('Google Sign-In response:', response);
+            
+            // For demo purposes, we'll simulate a successful login
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('userName').textContent = response.credential.name || 'Google User';
+            document.getElementById('userEmail').textContent = response.credential.email || 'user@google.com';
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'block';
+            document.getElementById('authModal').style.display = 'none';
+            
+            // Show success message
+            alert('Login dengan Google berhasil!');
+        }
+
+        // Initialize the app when the page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
